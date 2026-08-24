@@ -1,0 +1,12 @@
+{
+  "@timestamp": "2026-08-01T10:02:00Z",
+  "user": {"name": "alice", "email": "alice@example.example"},
+  "source": {"ip": "192.0.2.44"},
+  "host": {"name": "workstation-07.example"},
+  "account_id": "123456789012",
+  "tenant_id": "11111111-2222-4333-a444-555555555555",
+  "project_id": "synthetic-project-123",
+  "namespace": "payments-training",
+  "repository": "org/example-detection-rules",
+  "api_key": "SYNTHETIC-SECRET-DO-NOT-USE-123456"
+}

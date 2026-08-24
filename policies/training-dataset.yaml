@@ -1,0 +1,25 @@
+policy_version: "1.0"
+id: training-dataset
+title: Training dataset creation
+release_model: reusable-training
+default_action: review
+key_scope: per_run
+rules:
+  - id: secrets
+    priority: 1000
+    match: {semantic_types: [authentication.secret, authentication.token]}
+    action: {type: redact, replacement: "[SECRET_REMOVED]"}
+  - id: synthetic-identifiers
+    priority: 800
+    match: {semantic_types: [identity.username, identity.email, identity.employee_id, identity.customer_id, network.ip, infrastructure.hostname, network.domain, network.url, network.mac, cloud.account, cloud.aws.account, cloud.azure.tenant, cloud.azure.subscription, cloud.gcp.project, cloud.kubernetes.namespace, cicd.repository]}
+    action: {type: synthesize, namespace: training}
+  - id: sessions
+    priority: 700
+    match: {semantic_types: [identifier.session, identifier.uuid]}
+    action: {type: pseudonymize, namespace: training-session}
+  - id: timeline
+    priority: 600
+    match: {semantic_types: [time.event]}
+    action: {type: shift, preserve_order: true, preserve_deltas: true}
+utility: {preserve: [event_order, entity_correlation, schema_validity]}
+risk: {block_on_secret: true}

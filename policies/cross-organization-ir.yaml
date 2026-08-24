@@ -1,0 +1,30 @@
+policy_version: "1.0"
+id: cross-organization-ir
+title: Cross-organization incident coordination
+release_model: trusted-partners
+default_action: review
+key_scope: per_project
+tlp: {label: TLP:AMBER, set_by_user: true}
+rules:
+  - id: secrets
+    priority: 1000
+    match: {semantic_types: [authentication.secret, authentication.token]}
+    action: {type: redact, replacement: "[SECRET_REMOVED]"}
+  - id: people
+    priority: 800
+    match: {semantic_types: [identity.username, identity.email, identity.employee_id, identity.customer_id]}
+    action: {type: pseudonymize, namespace: identity}
+  - id: infra
+    priority: 750
+    match: {semantic_types: [network.ip, infrastructure.hostname, network.domain, network.url, network.mac, cloud.account, cloud.aws.account, cloud.azure.tenant, cloud.azure.subscription, cloud.gcp.project, cloud.kubernetes.namespace, cicd.repository]}
+    action: {type: pseudonymize, namespace: infrastructure}
+  - id: sessions
+    priority: 700
+    match: {semantic_types: [identifier.session, identifier.uuid]}
+    action: {type: pseudonymize, namespace: session}
+  - id: timeline
+    priority: 600
+    match: {semantic_types: [time.event]}
+    action: {type: shift, preserve_order: true, preserve_deltas: true}
+utility: {preserve: [event_order, entity_correlation, schema_validity, field_types]}
+risk: {block_on_secret: true}

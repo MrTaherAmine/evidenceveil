@@ -1,0 +1,1 @@
+{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"EvidenceVeil Bundle Manifest","type":"object","required":["schema_version","tool","policy","run_id","dataset_id","input_hashes","output_hashes","risk_status"],"properties":{"schema_version":{"const":"1.0"},"risk_status":{"enum":["blocked","review-required","eligible-for-controlled-review"]}}}

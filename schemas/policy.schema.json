@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/MrTaherAmine/evidenceveil/schemas/policy.schema.json",
+  "title": "EvidenceVeil Policy Schema",
+  "type": "object",
+  "required": ["policy_version", "id", "title", "rules"],
+  "properties": {
+    "policy_version": {"const": "1.0"},
+    "id": {"type": "string", "minLength": 1},
+    "title": {"type": "string", "minLength": 1},
+    "release_model": {"type": "string"},
+    "default_action": {"enum": ["review", "keep", "drop"]},
+    "key_scope": {"enum": ["per_run", "per_project", "cross_run_workspace"]},
+    "tlp": {
+      "type": ["object", "null"],
+      "properties": {"label": {"enum": ["TLP:CLEAR", "TLP:GREEN", "TLP:AMBER", "TLP:AMBER+STRICT", "TLP:RED", null]}, "set_by_user": {"type": "boolean"}}
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "match", "action"],
+        "properties": {
+          "id": {"type": "string"}, "priority": {"type": "integer"},
+          "match": {"type": "object"},
+          "action": {"type": "object", "required": ["type"]}
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}

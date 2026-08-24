@@ -1,0 +1,22 @@
+policy_version: "1.0"
+id: internal-handoff
+title: Internal least-privilege handoff
+release_model: internal-controlled
+default_action: review
+key_scope: per_run
+tlp: {label: TLP:AMBER, set_by_user: true}
+rules:
+  - id: secrets
+    priority: 1000
+    match: {semantic_types: [authentication.secret, authentication.token]}
+    action: {type: redact, replacement: "[SECRET_REMOVED]"}
+  - id: identities
+    priority: 800
+    match: {semantic_types: [identity.username, identity.email, identity.employee_id, identity.customer_id]}
+    action: {type: pseudonymize, namespace: internal-identity}
+  - id: cloud
+    priority: 700
+    match: {semantic_types: [cloud.account, cloud.aws.account, cloud.azure.tenant, cloud.azure.subscription, cloud.gcp.project]}
+    action: {type: pseudonymize, namespace: internal-cloud}
+utility: {preserve: [schema_validity, field_types]}
+risk: {block_on_secret: true}

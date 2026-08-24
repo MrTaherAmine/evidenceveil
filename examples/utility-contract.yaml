@@ -1,0 +1,11 @@
+utility_contract_version: "1.0"
+requirements:
+  - id: preserve-session-correlation
+    type: stable_relationship
+    fields: [session.id, user.name]
+  - id: preserve-event-order
+    type: temporal_order
+    field: event.created
+  - id: retain-detection-fields
+    type: required_fields
+    fields: [process.name, process.parent.name, user.name]

@@ -1,0 +1,34 @@
+policy_version: "1.0"
+id: public-research-strict
+title: Public research strict starting policy
+release_model: public-release
+default_action: review
+key_scope: per_run
+tlp:
+  label: TLP:CLEAR
+  set_by_user: true
+rules:
+  - id: remove-secrets
+    priority: 1000
+    match: {semantic_types: [authentication.secret, authentication.token]}
+    action: {type: redact, replacement: "[SECRET_REMOVED]"}
+  - id: synth-identities
+    priority: 800
+    match: {semantic_types: [identity.username, identity.email, identity.employee_id, identity.customer_id]}
+    action: {type: synthesize, namespace: public-identity}
+  - id: synth-infrastructure
+    priority: 750
+    match: {semantic_types: [network.ip, infrastructure.hostname, network.domain, network.url, network.mac, cloud.account, cloud.aws.account, cloud.azure.tenant, cloud.azure.subscription, cloud.gcp.project, cloud.kubernetes.namespace, cicd.repository]}
+    action: {type: synthesize, namespace: public-infrastructure}
+  - id: stable-session
+    priority: 700
+    match: {semantic_types: [identifier.session, identifier.uuid]}
+    action: {type: tokenize, namespace: public-session}
+  - id: bucket-time
+    priority: 600
+    match: {semantic_types: [time.event]}
+    action: {type: shift, preserve_order: true, preserve_deltas: true}
+utility:
+  preserve: [event_order, schema_validity]
+risk:
+  block_on_secret: true

@@ -1,0 +1,29 @@
+policy_version: "1.0"
+id: detection-fixture
+title: Detection engineering fixture
+release_model: internal-fixture
+default_action: review
+key_scope: per_run
+rules:
+  - id: secrets
+    priority: 1000
+    match: {semantic_types: [authentication.secret, authentication.token]}
+    action: {type: redact, replacement: "[SECRET_REMOVED]"}
+  - id: identities
+    priority: 800
+    match: {semantic_types: [identity.username, identity.email, identity.employee_id, identity.customer_id]}
+    action: {type: pseudonymize, namespace: detection-identity}
+  - id: infra
+    priority: 700
+    match: {semantic_types: [network.ip, infrastructure.hostname, network.domain, network.url, network.mac, cloud.account, cloud.aws.account, cloud.azure.tenant, cloud.azure.subscription, cloud.gcp.project, cloud.kubernetes.namespace, cicd.repository]}
+    action: {type: pseudonymize, namespace: detection-infra}
+  - id: session
+    priority: 650
+    match: {semantic_types: [identifier.session, identifier.uuid]}
+    action: {type: pseudonymize, namespace: detection-session}
+  - id: timeline
+    priority: 600
+    match: {semantic_types: [time.event]}
+    action: {type: shift, preserve_order: true, preserve_deltas: true}
+utility: {preserve: [event_order, entity_correlation, schema_validity, field_types]}
+risk: {block_on_secret: true}

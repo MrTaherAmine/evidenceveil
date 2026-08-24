@@ -1,0 +1,3 @@
+# Utility Methodology
+
+v1 records file/record preservation indicators, parsing status, requested invariants, and a versioned utility-contract result. The current `required_fields`, `temporal_order`, and `stable_relationship` contract handlers are lightweight structural checks: they confirm that sanitized material exists/parses and that the file set is preserved where applicable. They do **not** yet perform semantic field-presence validation, ordering proofs, correlation-equivalence analysis, or downstream detection execution. Treat these results as engineering indicators only. Richer utility validation is planned for later releases.

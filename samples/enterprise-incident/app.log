@@ -1,0 +1,2 @@
+2026-08-01T10:00:00Z login user=alice@example.example src=192.0.2.44 authorization: Bearer eyJhbGciOiJIUzI1NiJ9.synthetic.signature host=workstation-07.example
+2026-08-01T10:01:12Z request user=alice@example.example dst=198.51.100.8 url=https://support.example/api/ticket?id=123 session=550e8400-e29b-41d4-a716-446655440000
