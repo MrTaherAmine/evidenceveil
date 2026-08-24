@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+title: EvidenceVeil
+message: "If you use EvidenceVeil in research or professional work, please cite this software."
+type: software
+authors:
+  - family-names: ELHOUARI
+    given-names: Taher Amine
+version: 1.0.0
+date-released: 2026-08-24
+url: https://github.com/MrTaherAmine/evidenceveil
+license: Apache-2.0
