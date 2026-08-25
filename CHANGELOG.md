@@ -15,7 +15,7 @@ Maintenance release focused on reversible pseudonymization correctness and archi
 
 ## 1.0.0 — 2026-08-24
 
-Initial public release: local-first discovery, policy-driven sanitization, deterministic keyed transformations, authenticated reversible vaults, residual-risk auditing, utility validation, offline reports, bundle verification, restoration, plugins, synthetic fixtures, and CI.
+Initial public release: local-first discovery, policy-driven sanitization, deterministic keyed transformations, authenticated reversible vaults, residual-risk auditing, utility validation, offline reports, bundle verification, restoration, plugins, and synthetic fixtures.
 
 - Added persistent author attribution to CLI identity, doctor metadata, manifests, HTML/Markdown/JSON reports, and restoration manifests.
 - Fixed CSV discovery record counting and semantic scanning.

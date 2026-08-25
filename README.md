@@ -178,7 +178,7 @@ Deterministic keyed transformations can preserve selected relationships such as 
 
 ## Format support
 
-### Ready in v1.0
+### Ready in v1.x
 
 - Text and application logs
 - Syslog-like text
@@ -190,12 +190,12 @@ Deterministic keyed transformations can preserve selected relationships such as 
 - STIX 2.1 JSON bundles
 - Gzip text input
 
-### Recognized, but not parsed/sanitized in v1.0
+### Recognized, but not parsed/sanitized in v1.x
 
 - EVTX
 - Parquet
 
-Archive safety primitives are included, but direct CLI sanitization of ZIP/TAR archives is not claimed in v1.0. See [Format Support](docs/format-support.md) for the exact compatibility matrix.
+Archive safety primitives are included, but direct CLI sanitization of ZIP/TAR archives is not claimed in v1.x. See [Format Support](docs/format-support.md) for the exact compatibility matrix.
 
 ---
 
@@ -257,21 +257,25 @@ evidenceveil plugins list
 
 ---
 
-## v1.0.0 validation
+## v1.0.1 validation
 
-The first public release was validated locally on macOS with Python 3.14, including:
+The current v1.0.1 release was validated locally on macOS 26.6.2 with Python 3.14.7, including:
 
-- **44 automated tests passing**
-- **92%+ branch-aware coverage**
-- Ruff static analysis passing
+- **50 automated tests passing**
+- **92.44% branch-aware coverage**
+- Ruff lint and formatting checks passing
 - mypy type checking passing
 - `pip check` passing
-- `pip-audit` reporting no known third-party dependency vulnerabilities in the validated environment
-- Bandit reporting no identified issues after reviewed false-positive suppressions
-- sanitization, restoration and bundle-integrity checks
-- wheel and source-distribution build validation
+- `pip-audit` reporting no known vulnerable third-party dependencies in the validated environment
+- Bandit security analysis passing
+- exact Issue #2 collision regression coverage
+- 1,000-public-IPv4 deterministic round-trip stress validation
+- reversed-order collision determinism and cross-semantic mapping isolation validation
+- non-cascading restoration regression coverage
+- archive detection regression coverage for `.tar`, `.tar.gz`, and `.tgz`
+- wheel and source-distribution builds passing `twine check`
 
-Cross-platform GitHub CI is planned separately and is not implied by the local validation above.
+Cross-platform GitHub CI is not yet configured on the public repository and is not implied by the local validation above.
 
 ---
 
