@@ -1,4 +1,15 @@
 # Changelog
+## Unreleased
+
+- Added GitHub Actions CI across Linux, macOS and Windows for Python 3.11–3.14.
+- Added automated Ruff, formatting and mypy quality gates.
+- Added dependency auditing, Bandit analysis and fixture safety scanning.
+- Added CodeQL static security analysis.
+- Added automated wheel/source-distribution build and Twine validation.
+- Added `.gitignore` and `.gitattributes` repository hygiene controls.
+- Removed generated build artifacts and Python cache files from source control.
+- Made symlink and gzip newline tests portable across Windows runners.
+
 ## 1.0.2 — 2026-08-25
 
 Security and sanitization hardening release.

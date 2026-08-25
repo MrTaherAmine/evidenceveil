@@ -257,28 +257,26 @@ evidenceveil plugins list
 
 ---
 
-## v1.0.1 validation
+## Current validation
 
-The current v1.0.1 release was validated locally on macOS 26.6.2 with Python 3.14.7, including:
+EvidenceVeil v1.0.2 was validated locally on macOS 26.6.2 with Python 3.14.7, including:
 
-- **50 automated tests passing**
-- **92.44% branch-aware coverage**
+- **51 automated tests passing**
+- **92.56% branch-aware coverage**
 - Ruff lint and formatting checks passing
-- mypy type checking passing
+- mypy strict type checking passing
 - `pip check` passing
 - `pip-audit` reporting no known vulnerable third-party dependencies in the validated environment
 - Bandit security analysis passing
+- sanitization-bypass regression coverage
 - exact Issue #2 collision regression coverage
 - 1,000-public-IPv4 deterministic round-trip stress validation
 - reversed-order collision determinism and cross-semantic mapping isolation validation
 - non-cascading restoration regression coverage
-- archive detection regression coverage for `.tar`, `.tar.gz`, and `.tgz`
+- archive detection regression coverage
 - wheel and source-distribution builds passing `twine check`
 
-Cross-platform GitHub CI is not yet configured on the public repository and is not implied by the local validation above.
-
----
-
+Current `main` is additionally validated automatically by GitHub Actions across **Linux, macOS and Windows** with **Python 3.11, 3.12, 3.13 and 3.14**, together with dedicated Security, CodeQL and Build workflows.
 ## Documentation
 
 Looking for the details? Start here:
