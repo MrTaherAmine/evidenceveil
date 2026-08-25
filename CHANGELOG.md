@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.1 — Unreleased
+
+- Fixed reversible IPv4 pseudonymization collisions by expanding public-IP synthetic space and adding deterministic collision resolution so distinct originals cannot silently converge.
+- Added fail-closed mapping integrity guards to prevent fake→real overwrite conflicts in transformation mappings.
+- Included archive detection hardening from PR #1 for `.tar`, `.tar.gz`, and `.tgz` inputs.
+
 ## 1.0.0 — 2026-08-24
 
 Initial public release: local-first discovery, policy-driven sanitization, deterministic keyed transformations, authenticated reversible vaults, residual-risk auditing, utility validation, offline reports, bundle verification, restoration, plugins, synthetic fixtures, and CI.
