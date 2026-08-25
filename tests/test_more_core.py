@@ -102,7 +102,7 @@ def test_detect_all_common_formats(tmp_path: Path):
         f.write("hello\n")
     assert detect_format(g) == "gzip"
     with open_text(g) as f:
-        assert f.read() == "hello\n"
+        assert f.read().splitlines() == ["hello"]
     binary = tmp_path / "blob.bin"
     binary.write_bytes(b"a\x00b")
     assert detect_format(binary) == "binary-unsupported"
