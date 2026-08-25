@@ -1,0 +1,40 @@
+# Python
+.venv*/
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Test / quality caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+.coverage
+coverage.xml
+htmlcov/
+
+# Build
+dist/
+build/
+
+# EvidenceVeil sensitive/runtime material
+*.evlt
+.env
+.env.*
+*.pem
+*.key
+
+# Generated outputs
+demo-output*/
+restored-output*/
+wrong-run-output*/
+wrong-restoration-test*/
+evidenceveil-results.sarif
+
+# Patch/editor debris
+*.rej
+*.orig
+*~
+
+# macOS
+.DS_Store

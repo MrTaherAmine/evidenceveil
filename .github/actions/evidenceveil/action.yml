@@ -1,0 +1,21 @@
+name: EvidenceVeil Fixture Safety
+
+description: >
+  Scan committed fixtures for credential-like assignments,
+  non-reserved public IPv4 values, and live-domain-like values.
+
+inputs:
+  path:
+    description: Path to fixtures or sanitized data
+    required: false
+    default: samples
+
+runs:
+  using: composite
+  steps:
+    - name: Scan fixtures
+      shell: bash
+      run: |
+        python "${{ github.action_path }}/../../../scripts/fixture_scan.py" \
+          "${{ inputs.path }}" \
+          --sarif evidenceveil-results.sarif
