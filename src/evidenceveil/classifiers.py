@@ -102,11 +102,7 @@ def classify_value(value: str) -> list[str]:
         found.append("authentication.token")
     else:
         token_match = TOKEN_RE.search(value)
-        if (
-            token_match
-            and "[SECRET_REMOVED]" not in token_match.group(0)
-            and "[REDACTED]" not in token_match.group(0)
-        ):
+        if token_match:
             found.append("authentication.token")
     if EMAIL_RE.search(value):
         found.append("identity.email")

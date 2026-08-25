@@ -48,7 +48,7 @@ def test_classify_more_fields_and_values():
     assert classify_field("count", 4) is None
     assert "network.mac" in classify_value("02:11:22:33:44:55")
     assert classify_value("999.999.999.999") == []
-    assert "authentication.token" not in classify_value("authorization: [SECRET_REMOVED]")
+    assert "authentication.token" in classify_value("authorization: [SECRET_REMOVED]")
 
 
 def test_key_file_forms_and_errors(tmp_path: Path):
@@ -360,3 +360,19 @@ def test_audit_bundle_targets_sanitized_payload(tmp_path: Path):
     result = audit_path(bundle)
 
     assert result["untransformed_free_text_records"] == 1
+
+
+def test_redaction_markers_do_not_bypass_sanitization():
+    from evidenceveil.transforms.engine import transform_text
+
+    policy = load_policy("vendor-support")
+    ctx = TransformContext(b"x" * 32, policy, "text")
+    poisoned = (
+        "error [REDACTED] contact bob@corp.com from 8.8.8.8 "
+        "password=hunter2 token=eyJhbGciOiJIUzI1NiJ9.abc.def"
+    )
+    out = transform_text(poisoned, ctx)
+    assert "bob@corp.com" not in out
+    assert "8.8.8.8" not in out
+    assert "hunter2" not in out
+    assert "eyJhbGciOiJIUzI1NiJ9" not in out

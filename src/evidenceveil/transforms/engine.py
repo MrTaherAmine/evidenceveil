@@ -267,8 +267,6 @@ def transform_obj(obj: Any, ctx: TransformContext, prefix: str = "") -> Any:
 
 
 def transform_text(text: str, ctx: TransformContext) -> str:
-    if "[SECRET_REMOVED]" in text or "[REDACTED]" in text:
-        return text
     result = text
     # secrets first
     from ..classifiers import JWT_RE, TOKEN_RE
