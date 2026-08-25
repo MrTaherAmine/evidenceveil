@@ -218,7 +218,7 @@ def sanitize(
         }
         manifest = {
             "schema_version": "1.0",
-            "tool": {"name": "EvidenceVeil", "version": "1.0.0", **attribution_dict()},
+            "tool": {"name": "EvidenceVeil", "version": "1.0.1", **attribution_dict()},
             "policy": {"id": policy.id, "sha256": p_hash},
             "run_id": run_id,
             "dataset_id": dataset_id,
@@ -274,7 +274,7 @@ def sanitize(
                 raise InputError("A vault passphrase is required when --vault is used.")
             payload: dict[str, object] = {
                 "vault_format_version": "1.0",
-                "tool_version": "1.0.0",
+                "tool_version": "1.0.1",
                 "dataset_id": dataset_id,
                 "policy_hash": p_hash,
                 "key_id": key_id(key),

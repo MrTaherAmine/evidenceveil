@@ -18,10 +18,10 @@ def detect_format(path: Path) -> str:
         return "tsv"
     if name.endswith((".tar", ".tar.gz", ".tgz")):
         return "tar"
-    if name.endswith(".zip"):
-        return "zip"
     if name.endswith(".gz"):
         return "gzip"
+    if name.endswith(".zip"):
+        return "zip"
     if name.endswith(".evtx"):
         return "evtx"
     if name.endswith(".parquet"):

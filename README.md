@@ -61,7 +61,7 @@ EvidenceVeil never needs to modify the original evidence in place. Reversible ma
 Download the wheel from the [latest GitHub release](https://github.com/MrTaherAmine/evidenceveil/releases/latest), then:
 
 ```bash
-python -m pip install evidenceveil-1.0.0-py3-none-any.whl
+python -m pip install evidenceveil-1.0.1-py3-none-any.whl
 ```
 
 Or install from a clone:

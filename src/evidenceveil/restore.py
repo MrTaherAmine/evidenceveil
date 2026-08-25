@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import shutil
 import tempfile
 from pathlib import Path
@@ -13,9 +14,11 @@ from .vault.envelope import read_vault
 
 
 def _restore_text(text: str, mapping: dict[str, str]) -> str:
-    for sanitized in sorted(mapping, key=len, reverse=True):
-        text = text.replace(sanitized, mapping[sanitized])
-    return text
+    """Restore pseudonyms in a single pass so replacements cannot cascade."""
+    if not mapping:
+        return text
+    pattern = re.compile("|".join(re.escape(key) for key in sorted(mapping, key=len, reverse=True)))
+    return pattern.sub(lambda match: mapping[match.group(0)], text)
 
 
 def restore(

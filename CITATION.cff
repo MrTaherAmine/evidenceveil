@@ -5,7 +5,7 @@ type: software
 authors:
   - family-names: ELHOUARI
     given-names: Taher Amine
-version: 1.0.0
-date-released: 2026-08-24
+version: 1.0.1
+date-released: 2026-08-25
 url: https://github.com/MrTaherAmine/evidenceveil
 license: Apache-2.0

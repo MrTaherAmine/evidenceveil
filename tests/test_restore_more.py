@@ -26,3 +26,13 @@ def test_restore_output_exists_and_dataset_mismatch(tmp_path: Path):
             "this-is-a-test-passphrase",
             expected_dataset_id="wrong",
         )
+
+
+def test_restore_text_is_non_cascading():
+    from evidenceveil.restore import _restore_text
+
+    mapping = {
+        "PSEUDO-A": "PSEUDO-B",
+        "PSEUDO-B": "original-b",
+    }
+    assert _restore_text("x=PSEUDO-A y=PSEUDO-B", mapping) == "x=PSEUDO-B y=original-b"
