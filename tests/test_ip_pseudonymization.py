@@ -6,14 +6,17 @@ from pathlib import Path
 
 import pytest
 
+from evidenceveil.core.models import ActionSpec
 from evidenceveil.packaging.bundle import sanitize
 from evidenceveil.policies.engine import load_policy
 from evidenceveil.restore import restore
 from evidenceveil.transforms import engine
 from evidenceveil.transforms.engine import (
     TransformContext,
+    apply_action,
     _map_ip,
     _record_mapping,
+    preseed_ip_mappings,
     transform_text,
 )
 
@@ -67,14 +70,75 @@ def test_ipv4_collision_resolution_path_and_mapping_insert_guard(
     monkeypatch.setattr(engine, "_ip_probe_token", fake_ip_probe_token)
 
     first = _map_ip("8.8.8.8", ctx)
-    _record_mapping(ctx, first, "8.8.8.8")
+    _record_mapping(ctx, first, "8.8.8.8", scope="network.ip::network.ip")
 
     second = _map_ip("9.9.9.9", ctx)
-    _record_mapping(ctx, second, "9.9.9.9")
+    _record_mapping(ctx, second, "9.9.9.9", scope="network.ip::network.ip")
 
     assert first != second
     with pytest.raises(ValueError):
         _record_mapping(ctx, first, "1.1.1.1")
+
+
+def test_forward_mapping_is_scoped_by_semantic_namespace() -> None:
+    policy = load_policy("vendor-support")
+    ctx = TransformContext(bytes.fromhex(ISSUE_KEY_HEX), policy, "text")
+
+    generic = apply_action(
+        "8.8.8.8",
+        ActionSpec(type="pseudonymize", namespace="identifier.customer"),
+        "identifier.customer",
+        ctx,
+        "customer.id",
+    )
+    ip_value = apply_action(
+        "8.8.8.8",
+        ActionSpec(type="pseudonymize", namespace="network.ip"),
+        "network.ip",
+        ctx,
+        "src",
+    )
+    other_namespace = apply_action(
+        "8.8.8.8",
+        ActionSpec(type="pseudonymize", namespace="identifier.ticket"),
+        "identifier.ticket",
+        ctx,
+        "ticket",
+    )
+
+    assert isinstance(generic, str)
+    assert isinstance(ip_value, str)
+    assert isinstance(other_namespace, str)
+    assert generic != ip_value
+    assert other_namespace != ip_value
+    assert generic != other_namespace
+    ipaddress.ip_address(ip_value)
+
+
+def test_ipv4_collision_resolution_is_order_independent(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    policy = load_policy("vendor-support")
+    ip_a = "8.8.8.8"
+    ip_b = "9.9.9.9"
+
+    def fake_ip_probe_token(
+        _ctx: TransformContext, ip: ipaddress.IPv4Address | ipaddress.IPv6Address, probe: int
+    ) -> int:  # pragma: no cover - probe behavior asserted via outputs
+        if probe == 0:
+            return 7
+        return int(ip) + probe
+
+    monkeypatch.setattr(engine, "_ip_probe_token", fake_ip_probe_token)
+
+    forward_results: list[dict[str, str]] = []
+    for order in ([ip_a, ip_b], [ip_b, ip_a]):
+        ctx = TransformContext(b"k" * 32, policy, "text")
+        preseed_ip_mappings(order, ctx)
+        forward_results.append({ip_a: _map_ip(ip_a, ctx), ip_b: _map_ip(ip_b, ctx)})
+
+    assert forward_results[0] == forward_results[1]
+    assert forward_results[0][ip_a] != forward_results[0][ip_b]
 
 
 def test_stress_ipv4_deterministic_unique_and_roundtrip(tmp_path: Path) -> None:
