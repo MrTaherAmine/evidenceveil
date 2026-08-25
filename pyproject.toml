@@ -27,7 +27,7 @@ classifiers = [
 ]
 dependencies = [
   "typer>=0.16,<1",
-  "rich>=13,<15",
+  "rich>=13,<16",
   "pydantic>=2.8,<3",
   "PyYAML>=6,<7",
   "jsonschema>=4.22,<5",
