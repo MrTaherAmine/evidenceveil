@@ -139,7 +139,10 @@ def test_symlink_input_blocked(tmp_path: Path):
     target = tmp_path / "target"
     target.write_text("x")
     link = tmp_path / "link"
-    link.symlink_to(target)
+    try:
+        link.symlink_to(target)
+    except OSError as exc:
+        pytest.skip(f"symlink creation unavailable on this platform: {exc}")
     with pytest.raises(InputError):
         ensure_no_symlink(link)
     with pytest.raises(InputError):
