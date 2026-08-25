@@ -12,6 +12,7 @@ from typing import Any
 
 import yaml
 
+from ..classifiers import IP_RE
 from ..core.errors import InputError
 from ..core.security import atomic_write, ensure_distinct_paths, sha256_file
 from ..crypto.keys import generate_key, key_id, load_key_file
@@ -29,7 +30,6 @@ from ..metadata import (
 from ..policies.engine import load_policy, policy_hash
 from ..reporting.html import render_report
 from ..risk.audit import audit_path
-from ..classifiers import IP_RE
 from ..transforms.engine import TransformContext, preseed_ip_mappings, transform_obj, transform_text
 from ..utility.validate import basic_utility
 from ..vault.envelope import write_vault
