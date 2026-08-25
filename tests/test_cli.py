@@ -10,7 +10,7 @@ runner = CliRunner()
 
 def test_version_and_doctor():
     r = runner.invoke(app, ["version"])
-    assert r.exit_code == 0 and "1.0.1" in r.stdout
+    assert r.exit_code == 0 and "1.0.2" in r.stdout
     assert "Taher Amine ELHOUARI" in r.stdout
     assert "https://www.taheramine.org" in r.stdout
     r = runner.invoke(app, ["doctor", "--json"])

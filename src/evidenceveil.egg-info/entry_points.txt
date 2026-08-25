@@ -1,0 +1,2 @@
+[console_scripts]
+evidenceveil = evidenceveil.cli.app:main

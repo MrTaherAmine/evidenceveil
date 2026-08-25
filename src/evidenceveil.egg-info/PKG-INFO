@@ -1,3 +1,50 @@
+Metadata-Version: 2.4
+Name: evidenceveil
+Version: 1.0.2
+Summary: Local-first privacy engineering for cybersecurity evidence sharing
+Author-email: Taher Amine ELHOUARI <maintainer@taheramine.org>
+License-Expression: Apache-2.0
+Project-URL: Homepage, https://www.taheramine.org
+Project-URL: Repository, https://github.com/MrTaherAmine/evidenceveil
+Project-URL: Issues, https://github.com/MrTaherAmine/evidenceveil/issues
+Keywords: cybersecurity,privacy,incident-response,pseudonymization,de-identification,dfir
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Information Technology
+Classifier: Operating System :: MacOS
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3.14
+Classifier: Topic :: Security
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+License-File: LICENSE
+License-File: NOTICE
+License-File: AUTHORS.md
+Requires-Dist: typer<1,>=0.16
+Requires-Dist: rich<15,>=13
+Requires-Dist: pydantic<3,>=2.8
+Requires-Dist: PyYAML<7,>=6
+Requires-Dist: jsonschema<5,>=4.22
+Requires-Dist: cryptography<51,>=50
+Requires-Dist: argon2-cffi<26,>=23.1
+Provides-Extra: dev
+Requires-Dist: pytest<10,>=8; extra == "dev"
+Requires-Dist: pytest-cov<8,>=5; extra == "dev"
+Requires-Dist: hypothesis<7,>=6.110; extra == "dev"
+Requires-Dist: ruff<1,>=0.8; extra == "dev"
+Requires-Dist: mypy<2,>=1.11; extra == "dev"
+Requires-Dist: build<2,>=1.2; extra == "dev"
+Requires-Dist: twine<7,>=5; extra == "dev"
+Requires-Dist: pip-audit<3,>=2.7; extra == "dev"
+Requires-Dist: bandit<2,>=1.7; extra == "dev"
+Requires-Dist: types-PyYAML>=6.0; extra == "dev"
+Dynamic: license-file
+
 <p align="center">
   <img src="assets/evidenceveil-banner.svg" alt="EvidenceVeil — Share incident data without exposing the incident" width="100%">
 </p>

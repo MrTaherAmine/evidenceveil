@@ -1,4 +1,14 @@
 # Changelog
+## 1.0.2 — 2026-08-25
+
+Security and sanitization hardening release.
+
+- Fixed a free-text sanitization bypass where attacker-controlled evidence containing `[REDACTED]` or `[SECRET_REMOVED]` could cause the whole line to bypass further sanitization.
+- Redaction markers are now treated as inert content while remaining sensitive values on the same line continue through normal sanitization.
+- Removed hardcoded classifier exclusions that treated redaction-marker values as exempt from classification.
+- Added regression coverage proving that emails, public IP addresses, passwords and tokens are still sanitized when a redaction marker is present.
+- Validated the fix against the existing v1.0.1 collision-safe pseudonymization and restoration baseline.
+
 
 ## 1.0.1 — 2026-08-25
 
