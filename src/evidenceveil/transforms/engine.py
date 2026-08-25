@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import datetime as dt
 import ipaddress
+from collections.abc import Iterable
 from typing import Any
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
@@ -18,6 +19,7 @@ class TransformContext:
         self.fmt = fmt
         self.time_shift_seconds = time_shift_seconds
         self.mapping: dict[str, str] = {}
+        self.forward_mapping: dict[tuple[str, str], str] = {}
         self.counts: dict[str, int] = {}
         self.quarantine: list[dict[str, str]] = []
 
@@ -25,27 +27,99 @@ class TransformContext:
         self.counts[action] = self.counts.get(action, 0) + 1
 
 
-def _map_ip(value: str, ctx: TransformContext) -> str:
-    ip = ipaddress.ip_address(value)
-    token = int.from_bytes(
+_PUBLIC_IPV4_POOL_BASE = int(ipaddress.IPv4Address("198.18.0.0"))
+_PUBLIC_IPV4_POOL_SIZE = (1 << 17) - 2
+_PRIVATE_IPV4_POOL_SIZE = 256 * 256 * 253
+
+
+def _mapping_scope(semantic: str | None, namespace: str | None) -> str:
+    return f"{semantic or 'generic'}::{namespace or 'generic'}"
+
+
+def _record_mapping(
+    ctx: TransformContext, pseudonym: str, original: str, *, scope: str = "generic::generic"
+) -> None:
+    existing = ctx.mapping.get(pseudonym)
+    if existing is not None and existing != original:
+        raise ValueError(
+            f"Mapping collision for pseudonym '{pseudonym}': "
+            f"cannot map both '{existing}' and '{original}'."
+        )
+    forward_key = (scope, original)
+    existing_forward = ctx.forward_mapping.get(forward_key)
+    if existing_forward is not None and existing_forward != pseudonym:
+        raise ValueError(
+            f"Mapping conflict for original value '{original}': "
+            f"existing pseudonym '{existing_forward}', attempted '{pseudonym}'."
+        )
+    ctx.mapping[pseudonym] = original
+    ctx.forward_mapping[forward_key] = pseudonym
+
+
+def _ip_probe_token(
+    ctx: TransformContext, ip: ipaddress.IPv4Address | ipaddress.IPv6Address, probe: int
+) -> int:
+    return int.from_bytes(
         __import__("hmac")
-        .new(ctx.key, b"ip\x00" + ip.packed, __import__("hashlib").sha256)
+        .new(
+            ctx.key,
+            b"ip\x00" + ip.packed + probe.to_bytes(4, "big", signed=False),
+            __import__("hashlib").sha256,
+        )
         .digest()[:16],
         "big",
     )
-    if ip.version == 4:
-        if ip.is_private:
-            a = 10
-            b = (token >> 8) & 255
-            c = token & 255
-            mapped = f"{a}.{b}.{c}.{1 + ((token >> 16) % 253)}"
+
+
+def _map_ip(value: str, ctx: TransformContext, *, scope: str = "network.ip::network.ip") -> str:
+    existing = ctx.forward_mapping.get((scope, value))
+    if existing is not None:
+        return existing
+    ip = ipaddress.ip_address(value)
+    max_probes = (
+        _PRIVATE_IPV4_POOL_SIZE if ip.version == 4 and ip.is_private else _PUBLIC_IPV4_POOL_SIZE
+    )
+    if ip.version == 6:
+        max_probes = 100_000
+    for probe in range(max_probes):
+        token = _ip_probe_token(ctx, ip, probe)
+        if ip.version == 4:
+            if ip.is_private:
+                a = 10
+                b = (token >> 8) & 255
+                c = token & 255
+                mapped = f"{a}.{b}.{c}.{1 + ((token >> 16) % 253)}"
+            else:
+                mapped = str(
+                    ipaddress.IPv4Address(
+                        _PUBLIC_IPV4_POOL_BASE + 1 + (token % _PUBLIC_IPV4_POOL_SIZE)
+                    )
+                )
         else:
-            blocks = [(192, 0, 2), (198, 51, 100), (203, 0, 113)]
-            x = blocks[token % 3]
-            mapped = f"{x[0]}.{x[1]}.{x[2]}.{1 + ((token >> 8) % 253)}"
-    else:
-        mapped = f"2001:db8:{(token >> 96) & 0xFFFF:x}:{(token >> 80) & 0xFFFF:x}::{1 + (token & 0xFFFF):x}"
-    return mapped
+            mapped = str(
+                ipaddress.IPv6Address(
+                    int(ipaddress.IPv6Address("2001:db8::")) + 1 + (token % ((1 << 96) - 2))
+                )
+            )
+        owner = ctx.mapping.get(mapped)
+        if owner is None or owner == value:
+            return mapped
+    raise RuntimeError(
+        f"Unable to allocate unique pseudonym for IP '{value}': namespace exhausted after {max_probes} attempts."
+    )
+
+
+def preseed_ip_mappings(values: Iterable[str], ctx: TransformContext) -> None:
+    canonical: list[tuple[int, int, str]] = []
+    for value in values:
+        try:
+            ip = ipaddress.ip_address(value)
+        except ValueError:
+            continue
+        canonical.append((ip.version, int(ip), value))
+    for _, _, value in sorted(set(canonical)):
+        mapped = _map_ip(value, ctx)
+        _record_mapping(ctx, mapped, value, scope="network.ip::network.ip")
 
 
 def _email(value: str, ctx: TransformContext, namespace: str) -> str:
@@ -118,13 +192,16 @@ def apply_action(
     if kind in {"tokenize", "hmac"}:
         return f"tok_{derive(ctx.key, namespace, value, 16)}"
     if kind in {"pseudonymize", "synthesize"}:
+        scope = _mapping_scope(semantic, namespace)
         if semantic == "identity.email":
             out = _email(value, ctx, namespace)
         elif semantic == "network.ip":
             try:
-                out = _map_ip(value, ctx)
+                ipaddress.ip_address(value)
             except ValueError:
                 out = f"ip-{derive(ctx.key, namespace, value, 12)}"
+            else:
+                out = _map_ip(value, ctx, scope=scope)
         elif semantic == "infrastructure.hostname" or semantic == "network.domain":
             out = _hostname(value, ctx, namespace)
         elif semantic == "network.url":
@@ -137,7 +214,7 @@ def apply_action(
             out = f"{raw[:8]}-{raw[8:12]}-4{raw[13:16]}-a{raw[17:20]}-{raw[20:32]}"
         else:
             out = f"{namespace.split('.')[-1]}-{derive(ctx.key, namespace, value, 12)}"
-        ctx.mapping[out] = value
+        _record_mapping(ctx, out, value, scope=scope)
         return out
     if kind == "generalize":
         if semantic == "network.ip":
@@ -204,19 +281,21 @@ def transform_text(text: str, ctx: TransformContext) -> str:
     for m in list(URL_RE.finditer(result))[::-1]:
         val = m.group(0)
         out = _url(val, ctx, "url")
-        ctx.mapping[out] = val
+        _record_mapping(ctx, out, val, scope=_mapping_scope("network.url", "url"))
         result = result[: m.start()] + out + result[m.end() :]
     for m in list(EMAIL_RE.finditer(result))[::-1]:
         val = m.group(0)
         out = _email(val, ctx, "identity")
-        ctx.mapping[out] = val
+        _record_mapping(ctx, out, val, scope=_mapping_scope("identity.email", "identity"))
         result = result[: m.start()] + out + result[m.end() :]
     for m in list(IP_RE.finditer(result))[::-1]:
         val = m.group(0)
         try:
-            out = _map_ip(val, ctx)
+            ipaddress.ip_address(val)
         except ValueError:
             continue
-        ctx.mapping[out] = val
+        ip_scope = _mapping_scope("network.ip", "network.ip")
+        out = _map_ip(val, ctx, scope=ip_scope)
+        _record_mapping(ctx, out, val, scope=ip_scope)
         result = result[: m.start()] + out + result[m.end() :]
     return result

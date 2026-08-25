@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 import hashlib
+import ipaddress
 import json
 import os
 import shutil
@@ -11,6 +12,7 @@ from typing import Any
 
 import yaml
 
+from ..classifiers import IP_RE
 from ..core.errors import InputError
 from ..core.security import atomic_write, ensure_distinct_paths, sha256_file
 from ..crypto.keys import generate_key, key_id, load_key_file
@@ -28,7 +30,7 @@ from ..metadata import (
 from ..policies.engine import load_policy, policy_hash
 from ..reporting.html import render_report
 from ..risk.audit import audit_path
-from ..transforms.engine import TransformContext, transform_obj, transform_text
+from ..transforms.engine import TransformContext, preseed_ip_mappings, transform_obj, transform_text
 from ..utility.validate import basic_utility
 from ..vault.envelope import write_vault
 
@@ -108,6 +110,20 @@ def _checksums(root: Path) -> str:
     return "\n".join(rows) + "\n"
 
 
+def _collect_ip_literals(src: Path) -> set[str]:
+    values: set[str] = set()
+    with open_text(src) as inp:
+        for line in inp:
+            for match in IP_RE.finditer(line):
+                value = match.group(0)
+                try:
+                    ipaddress.ip_address(value)
+                except ValueError:
+                    continue
+                values.add(value)
+    return values
+
+
 def sanitize(
     input_path: Path,
     policy_value: str | Path,
@@ -152,7 +168,11 @@ def sanitize(
         sanitized_root = stage / "sanitized"
         ctx = TransformContext(key, policy, "mixed")
         records = 0
-        files = iter_files(input_path)
+        files = list(iter_files(input_path))
+        all_ip_literals: set[str] = set()
+        for src in files:
+            all_ip_literals.update(_collect_ip_literals(src))
+        preseed_ip_mappings(all_ip_literals, ctx)
         base = input_path if input_path.is_dir() else input_path.parent
         for src in files:
             rel = src.relative_to(base)
