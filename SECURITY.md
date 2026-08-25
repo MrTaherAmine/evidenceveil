@@ -18,7 +18,7 @@ Please **do not open a public GitHub issue** for suspected vulnerabilities, expl
 Report security concerns privately to:
 
 - **Taher Amine ELHOUARI**
-- **Email:** maintainer@taheramine.org
+- **Email:** contact@taheramine.org
 - **Website:** https://www.taheramine.org
 
 Include, where possible:
