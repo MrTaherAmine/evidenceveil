@@ -14,6 +14,14 @@
   <img src="https://img.shields.io/badge/Local--first-No%20telemetry-20B2AA" alt="Local-first, no telemetry">
 </p>
 
+<p align="center">
+  <a href="https://github.com/MrTaherAmine/evidenceveil/actions/workflows/ci.yml"><img src="https://github.com/MrTaherAmine/evidenceveil/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/MrTaherAmine/evidenceveil/actions/workflows/security.yml"><img src="https://github.com/MrTaherAmine/evidenceveil/actions/workflows/security.yml/badge.svg" alt="Security"></a>
+  <a href="https://github.com/MrTaherAmine/evidenceveil/actions/workflows/codeql.yml"><img src="https://github.com/MrTaherAmine/evidenceveil/actions/workflows/codeql.yml/badge.svg" alt="CodeQL"></a>
+  <a href="https://github.com/MrTaherAmine/evidenceveil/actions/workflows/build.yml"><img src="https://github.com/MrTaherAmine/evidenceveil/actions/workflows/build.yml/badge.svg" alt="Build"></a>
+</p>
+
+
 ---
 
 ## What is EvidenceVeil?
